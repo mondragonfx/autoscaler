@@ -51,6 +51,15 @@ func TestManager_newManager(t *testing.T) {
 		_, err := newManager(strings.NewReader(config))
 		assert.EqualError(t, err, errors.New("empty cluster ID was supplied").Error())
 	})
+	t.Run("IRSA auto-detect from env", func(t *testing.T) {
+		t.Setenv("AWS_ROLE_ARN", "bf39e101-f65b-492d-a065-7491a2737399")
+
+		config := `{"cluster_id": "abc"}`
+
+		manager, err := newManager(strings.NewReader(config))
+		require.NoError(t, err)
+		assert.True(t, manager.useIRSA, "auto-detect IRSA from AWS_ROLE_ARN env var")
+	})
 }
 
 func TestManager_Refresh(t *testing.T) {
